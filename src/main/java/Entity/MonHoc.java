@@ -14,8 +14,12 @@ public class MonHoc {
     private String maMH;
     @Column(name = "tenmonhoc")
     private String tenMonHoc;
+
+
     @Column(name = "sotinchi")
     private String soTinChi;
+    @Column(name = "khoa")
+    private String khoa;
     @OneToMany(mappedBy = "monHoc",cascade=CascadeType.ALL,fetch = FetchType.EAGER)
     //@JoinColumn(name = "idmonhoc",referencedColumnName = "id")
     private List<Nhom> nhoms = new ArrayList();
@@ -52,4 +56,13 @@ public class MonHoc {
     public void setSoTinChi(String soTinChi) {
         this.soTinChi = soTinChi;
     }
+
+    public String getKhoa() {
+        return khoa;
+    }
+
+    public void setKhoa(String khoa) {
+        this.khoa = khoa;
+    }
+
 }
