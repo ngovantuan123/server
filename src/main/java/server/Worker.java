@@ -5,6 +5,7 @@ import DAO.impl.MonHocDAO;
 import Service.MonHocService;
 import Service.main;
 import Service.tkb;
+import Utils.Crypto;
 import com.mysql.cj.xdevapi.JsonArray;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -26,27 +27,31 @@ public class Worker implements Runnable {
     private final Socket socket;
     private final BufferedReader in;
     private final BufferedWriter out;
+    public static Crypto crypto;
 
     public Worker(int index, Socket sk) throws IOException {
         id = index;
         socket = sk;
         in = new BufferedReader(new InputStreamReader(sk.getInputStream()));
         out = new BufferedWriter(new OutputStreamWriter(sk.getOutputStream()));
-
+        crypto= new Crypto();
     }
 
 
     public String receive() throws IOException {
-        String input = in.readLine();
-        if (input == null)
+        String input = crypto.decrypt(in.readLine());
+        if (input == null) {
             return "";
+        }
         return input;
     }
 
     public void send(String mes) throws IOException {
-        out.write(mes);
-        out.newLine();
-        out.flush();
+        try {
+            out.write(crypto.encrypt(mes));
+            out.newLine();
+            out.flush();
+        } catch (IOException e) {}
     }
 
 
@@ -80,7 +85,28 @@ public class Worker implements Runnable {
                     MonHocService mhs = new MonHocService();
                     //send(new JSONArray(mhs.monHocDTOs()).toString());
                     send(new JSONArray(mhs.getMonHocByKhoa(maKhoa)).toString());
-                }else if(input.startsWith("Chitiet#")){
+                }
+                else if(input.startsWith("xepthoikhoabieu#")){
+                    String[] maMH = input.split("#");
+                    MonHocService mhs = new MonHocService();
+                    String[] mamhs = maMH[1].split(";");
+                    List<String> r = new ArrayList<>();
+                    for (int i = 0; i < mamhs.length; i++) {
+                        r.add(mamhs[i]);
+                    }
+                    List<List<tkb>> t = main.mainProcess(r);
+//                    while(r.size()>0){
+//                        if(t.size()==0){
+//                            r.remove(r.get(r.size()-1));
+//                            t = main.mainProcess(r);
+//                        }else{
+//                            break;
+//                        }
+//                    }
+
+                    send(new JSONArray(t).toString());
+                }
+                else if(input.startsWith("Chitiet#")){
                     String maMH = input.split("#")[1];
                     MonHocService mhs = new MonHocService();
 

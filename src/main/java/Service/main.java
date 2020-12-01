@@ -350,10 +350,10 @@ public class main {
             }
             if (outerList.size() > 1) {
 
-                generate(newOuter, outPut + a + i);
+                generate(newOuter, outPut + a + ";" + i + ";");
             } else {
 
-                truonghopList.add(outPut + a + i);
+                truonghopList.add(outPut + a + ";" + i);
 
                 //System.out.println(outPut+str);
             }
@@ -464,7 +464,8 @@ public class main {
         Session session = HibernateUtil.getSessionFactory().openSession();
         MonHocDAO monHocDAO = new MonHocDAO();
         NhomDAO nhomDAO = new NhomDAO();
-        List<MonHoc> lstMonhoc = monHocDAO.findAll();
+        MonHoc mh1 = monHocDAO.findMaKhoabyMaMH(request.get(request.size()-1));
+        List<MonHoc> lstMonhoc = monHocDAO.findbyMaKhoa(mh1.getKhoa());
         //List<Object[]> lstMonhoc1 = monHocDAO.queryNativeExecute("select m.maMH from monhoc m inner join nhom n on m.id = n.idmonhoc");
 
         // input data
@@ -561,7 +562,7 @@ public class main {
         List<Integer> index_outer = new ArrayList<>();
         List<Integer> index_inner = new ArrayList<>();
         for (String item : truonghopList) {
-            String[] lst1 = item.split("");  // [01,12,..]
+            String[] lst1 = item.split(";");  // [01,12,..]
 
             index_outer = new ArrayList<>();
             index_inner = new ArrayList<>();
