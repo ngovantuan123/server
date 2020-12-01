@@ -464,7 +464,7 @@ public class main {
         Session session = HibernateUtil.getSessionFactory().openSession();
         MonHocDAO monHocDAO = new MonHocDAO();
         NhomDAO nhomDAO = new NhomDAO();
-        MonHoc monHoc =monHocDAO.findByMaMH(request.get(0));
+        //List<MonHoc monHoc =monHocDAO.findAll();
         List<MonHoc> lstMonhoc = monHocDAO.findAll();
         //List<Object[]> lstMonhoc1 = monHocDAO.queryNativeExecute("select m.maMH from monhoc m inner join nhom n on m.id = n.idmonhoc");
 

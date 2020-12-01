@@ -52,33 +52,33 @@ public class Crypto
         }
     }
 
-    private void generateKey()
-    {
-        try
-        {
-            // 3DES
-            KeyGenerator desEdeGen = KeyGenerator.getInstance("DESede");
-            secretKey3DES = desEdeGen.generateKey();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
+//    private void generateKey()
+//    {
+//        try
+//        {
+//            // 3DES
+//            KeyGenerator desEdeGen = KeyGenerator.getInstance("DESede");
+//            secretKey3DES = desEdeGen.generateKey();
+//        }
+//        catch (Exception e)
+//        {
+//            e.printStackTrace();
+//        }
+//    }
 
-    public String getKey()
-    {
-        // Sinh key
-        generateKey();
+//    public String getKey()
+//    {
+//        // Sinh key
+//        generateKey();
+//
+//        // Ma hoa key
+//        String keyStr = Base64.getEncoder().encodeToString(secretKey3DES.getEncoded());
+//        keyStr = encryptRSA(keyStr);
+//
+//        return keyStr;
+//    }
 
-        // Ma hoa key
-        String keyStr = Base64.getEncoder().encodeToString(secretKey3DES.getEncoded());
-        keyStr = encryptRSA(keyStr);
-
-        return keyStr;
-    }
-
-    private void setKey(String keyStr)
+    public void setKey(String keyStr)
     {
         try
         {

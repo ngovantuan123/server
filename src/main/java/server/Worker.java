@@ -4,6 +4,7 @@ import DAO.impl.MonHocDAO;
 import Service.MonHocService;
 import Service.main;
 import Service.tkb;
+import Utils.Crypto;
 import com.mysql.cj.xdevapi.JsonArray;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -24,27 +25,32 @@ public class Worker implements Runnable {
     private final Socket socket;
     private final BufferedReader in;
     private final BufferedWriter out;
+    public static Crypto crypto;
     
     public Worker(int index, Socket sk) throws IOException {
         id = index;
         socket = sk;
         in = new BufferedReader(new InputStreamReader(sk.getInputStream()));
         out = new BufferedWriter(new OutputStreamWriter(sk.getOutputStream()));
+
+        crypto= new Crypto();
         
     }
     
     public String receive() throws IOException {
-        String input = in.readLine();
+        String input = crypto.decrypt(in.readLine());
         if (input == null) {
             return "";
         }
         return input;
     }
     
-    public void send(String mes) throws IOException {
-        out.write(mes);
+    public void send(String mes) {
+        try {
+        out.write(crypto.encrypt(mes));
         out.newLine();
         out.flush();
+        } catch (IOException e) {}
     }
     
     private void close() throws IOException {
@@ -72,8 +78,7 @@ public class Worker implements Runnable {
                 if (cmd.equals("bye")) {
                     break;
                 }
-                
-                if (input.equals("hello")) {
+                else if (input.equals("hello")) {
                     MonHocService mhs = new MonHocService();
                     send(new JSONArray(mhs.monHocDTOs()).toString());
                 } else if (input.startsWith("xepthoikhoabieu#")) {
