@@ -16,9 +16,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 
 
 public class Worker implements Runnable {
@@ -88,13 +86,18 @@ public class Worker implements Runnable {
                 }
                 else if(input.startsWith("xepthoikhoabieu#")){
                     String[] maMH = input.split("#");
+                    main.truonghopList.clear();
+                    main.tmp_inner.clear();
+                    main.tmp_outer.clear();
+                    main.output.clear();
                     MonHocService mhs = new MonHocService();
                     String[] mamhs = maMH[1].split(";");
                     List<String> r = new ArrayList<>();
                     for (int i = 0; i < mamhs.length; i++) {
                         r.add(mamhs[i]);
                     }
-                    List<List<tkb>> t = main.mainProcess(r);
+                    Map<String,List<tkb>> t = new LinkedHashMap<>();
+                     t = main.mainProcess(r);
 //                    while(r.size()>0){
 //                        if(t.size()==0){
 //                            r.remove(r.get(r.size()-1));
@@ -104,25 +107,15 @@ public class Worker implements Runnable {
 //                        }
 //                    }
 
-                    send(new JSONArray(t).toString());
+
+                    send(new JSONObject(t).toString());
                 }
                 else if(input.startsWith("Chitiet#")){
                     String maMH = input.split("#")[1];
                     MonHocService mhs = new MonHocService();
 
                     send(new JSONArray(mhs.getNhomsByMaMH(maMH)).toString());
-                }  else{
-                    String[] request = input.split(";");
-                    List<String> temp = new ArrayList<>();
-                    for (int mh = 0; mh < request.length; mh++) {
-                        temp.add(request[mh]);
-                    }
-                    List<List<tkb>> result = main.mainProcess(temp);
-                    if (!result.isEmpty()) {
 
-                        send(new JSONArray(result).toString());
-
-                    }
                 }
                 // TODO
 

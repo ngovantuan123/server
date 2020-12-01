@@ -290,7 +290,80 @@ public class main {
         return allMorning;
     }
 
+    public static List<List<tkb>> filteritNgayNhat(List<List<tkb>> main) {
+        List<List<tkb>> minNgay = new ArrayList<>();
+        List<tkb> temp = new ArrayList<>();
+        String thu[] = {"Hai", "Ba", "Tư", "Năm", "Sáu", "Bảy"};
+        int sum = 0;
+        List<Integer> temp_count_thu = new ArrayList<>();
+        Map<List<tkb>,Integer> temp_map = new LinkedHashMap<>();
+        for (int k = 0; k < main.size(); ++k) {
+            List<tkb> item = main.get(k);
+            Map<String,String> map = new LinkedHashMap<>();
+            for (int i = 0; i < item.size(); i++) {
+                map.put(item.get(i).getThu(),item.get(i).getTenMH());
+            }
+            temp_count_thu.add(map.size());
 
+            temp_map.put(item,map.size());
+        }
+
+        Integer min = temp_count_thu.stream().mapToInt(v -> v).min().orElseThrow(NoSuchElementException::new);
+        // duyệt temp_map để lấy list<tkb> theo giá trị min
+        for (List<tkb> key : temp_map.keySet()) {
+            if(temp_map.get(key) == min){
+                minNgay.add(key);
+            }
+        }
+        return minNgay;
+    }
+    public static List<List<tkb>> filteritBuoiNhat(List<List<tkb>> main) {
+        List<List<tkb>> minBuoi = new ArrayList<>();
+        List<tkb> temp = new ArrayList<>();
+        String thu[] = {"Hai", "Ba", "Tư", "Năm", "Sáu", "Bảy"};
+
+        List<Integer> temp_count_buoi = new ArrayList<>();
+        Map<List<tkb>,Integer> temp_map = new LinkedHashMap<>();
+        for (int k = 0; k < main.size(); ++k) {
+            List<tkb> item = main.get(k);
+            int sum = 0;
+            for (int i = 0; i < thu.length; ++i) {
+                String thu_i = thu[i];
+                List<tkb> r = item.stream()
+                        .filter((t) -> t.getThu().equals(thu_i))
+                        .collect(Collectors.toList());
+
+                // buổi sáng
+                List<tkb> buoisang = r.stream()
+                        .filter((t) -> t.getTietBD() >=1 && t.getTietKT() <= 5)
+                        .collect(Collectors.toList());
+
+                // buổi chiều
+                List<tkb> buoichieu = r.stream()
+                        .filter((t) -> t.getTietBD() >=6 && t.getTietKT() <= 10)
+                        .collect(Collectors.toList());
+
+                if(buoisang.size() != 0 ){
+                    sum ++;
+                }
+                if(buoichieu.size() != 0 ){
+                    sum ++;
+                }
+
+            }
+            temp_count_buoi.add(sum);
+            temp_map.put(item,sum);
+        }
+
+        Integer min = temp_count_buoi.stream().mapToInt(v -> v).min().orElseThrow(NoSuchElementException::new);
+//        // duyệt temp_map để lấy list<tkb> theo giá trị min
+        for (List<tkb> key : temp_map.keySet()) {
+            if(temp_map.get(key) == min){
+                minBuoi.add(key);
+            }
+        }
+        return minBuoi;
+    }
     /*
      * Xử lý xung đột tiết bd
      * kiểm tra tiết BD hợp lệ
@@ -303,7 +376,8 @@ public class main {
 
                 if(!item.get(i).getTenMH().equals(item.get(j).getTenMH())){
                     // nếu tên môn học này khác môn học kia
-                    if ((item.get(i).getTietBD() >= item.get(j).getTietBD() && item.get(i).getTietBD() <= item.get(j).getTietKT()) || (item.get(j).getTietBD() >= item.get(i).getTietBD() && item.get(j).getTietBD() <= item.get(i).getTietKT()))  {
+                    //if ((item.get(i).getTietBD() >= item.get(j).getTietBD() && item.get(i).getTietBD() <= item.get(j).getTietKT()) || (item.get(j).getTietBD() >= item.get(i).getTietBD() && item.get(j).getTietBD() <= item.get(i).getTietKT()))  {
+                    if ((item.get(i).getTietKT() >= item.get(j).getTietBD() && item.get(i).getTietKT() <= item.get(j).getTietKT()) || (item.get(i).getTietBD() >= item.get(j).getTietBD() && item.get(i).getTietBD() <= item.get(j).getTietKT())){
                         // điều kiện tiết bd của môn này bằng với môn kia
                         // hoặc tiết BD môn này trong khoảng của môn kia
 
@@ -460,7 +534,8 @@ public class main {
         }
         return false;
     }
-    public static List<List<tkb>>  mainProcess(List<String> request){
+    //public static List<List<tkb>>  mainProcess(List<String> request){
+    public static Map<String,List<tkb>>  mainProcess(List<String> request){
         Session session = HibernateUtil.getSessionFactory().openSession();
         MonHocDAO monHocDAO = new MonHocDAO();
         NhomDAO nhomDAO = new NhomDAO();
@@ -680,13 +755,45 @@ public class main {
 
         //==================== tiếp tục thêm đk lọc
         List<List<tkb>> allMorning = new ArrayList<>();
+        List<List<tkb>> itNgaynhat = new ArrayList<>();
+        List<List<tkb>> itBuoiNhat = new ArrayList<>();
         List<String> monMongMuon = new ArrayList<>();
         monMongMuon.add("841121");
         monMongMuon.add("841324");
         monMongMuon.add("841111");
         // muốn môn ppnc học buổi sáng
         // nếu sl r = sl môn học đó trong item
-        allMorning = filterSubjectByBuoi(mainlists,monMongMuon,"sáng"); // sáng hoặc chiều
-     return mainlists;
+        allMorning = filterSubjectByBuoi(mainlists,subjectWanted,"sáng"); // sáng hoặc chiều
+        itNgaynhat = filteritNgayNhat(mainlists);
+        itBuoiNhat = filteritBuoiNhat(mainlists);
+        List<List<tkb>> resultList = new ArrayList<>();
+        Map<String,List<tkb>> mapResult = new LinkedHashMap<>();
+        if(mainlists.size()>0 ){
+            mapResult.put("binhthuong",mainlists.get(0));
+
+        }else {
+            mapResult.put("binhthuong",new ArrayList<>());
+        }
+        if(itBuoiNhat.size()>0 ){
+            mapResult.put("itBuoinhat",itBuoiNhat.get(0));
+
+        }else {
+            mapResult.put("itBuoinhat",new ArrayList<>());
+        }
+        if(itNgaynhat.size()>0 ){
+            mapResult.put("itNgaynhat",itNgaynhat.get(0));
+
+        }else {
+            mapResult.put("itNgaynhat",new ArrayList<>());
+        }
+        if(allMorning.size()>0 ){
+            mapResult.put("toansang",allMorning.get(0));
+
+        }else {
+            mapResult.put("toansang",new ArrayList<>());
+        }
+
+
+     return mapResult;
     }
 }
