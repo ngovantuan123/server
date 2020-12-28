@@ -308,7 +308,7 @@ public class main {
             temp_map.put(item,map.size());
         }
 
-        Integer min = temp_count_thu.stream().mapToInt(v -> v).min().orElseThrow(NoSuchElementException::new);
+        Integer min = temp_count_thu.stream().mapToInt(v -> v).min().orElse(0);
         // duyệt temp_map để lấy list<tkb> theo giá trị min
         for (List<tkb> key : temp_map.keySet()) {
             if(temp_map.get(key) == min){
@@ -355,7 +355,7 @@ public class main {
             temp_map.put(item,sum);
         }
 
-        Integer min = temp_count_buoi.stream().mapToInt(v -> v).min().orElseThrow(NoSuchElementException::new);
+        Integer min = temp_count_buoi.stream().mapToInt(v -> v).min().orElse(0);
 //        // duyệt temp_map để lấy list<tkb> theo giá trị min
         for (List<tkb> key : temp_map.keySet()) {
             if(temp_map.get(key) == min){

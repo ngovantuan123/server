@@ -169,7 +169,8 @@ public class Crypto
         catch (NoSuchAlgorithmException | BadPaddingException | NoSuchPaddingException |
                 IllegalBlockSizeException | InvalidKeyException e)
         {
-            e.printStackTrace();
+            System.out.println("connection close");
+            //e.printStackTrace();
         }
         return decryptStr;
     }

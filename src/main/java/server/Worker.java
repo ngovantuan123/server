@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.*;
 
 
@@ -37,11 +38,12 @@ public class Worker implements Runnable {
 
 
     public String receive() throws IOException {
-        String input = crypto.decrypt(in.readLine());
+
+        String input = in.readLine();
         if (input == null) {
             return "";
         }
-        return input;
+        return crypto.decrypt(input);
     }
 
     public void send(String mes) throws IOException {
@@ -85,6 +87,7 @@ public class Worker implements Runnable {
                     send(new JSONArray(mhs.getMonHocByKhoa(maKhoa)).toString());
                 }
                 else if(input.startsWith("xepthoikhoabieu#")){
+
                     String[] maMH = input.split("#");
                     main.truonghopList.clear();
                     main.tmp_inner.clear();
@@ -97,15 +100,19 @@ public class Worker implements Runnable {
                         r.add(mamhs[i]);
                     }
                     Map<String,List<tkb>> t = new LinkedHashMap<>();
-                     t = main.mainProcess(r);
-//                    while(r.size()>0){
-//                        if(t.size()==0){
-//                            r.remove(r.get(r.size()-1));
-//                            t = main.mainProcess(r);
-//                        }else{
-//                            break;
-//                        }
-//                    }
+                    t = main.mainProcess(r);
+                    while(r.size()>1){
+                        main.truonghopList.clear();
+                        main.tmp_inner.clear();
+                        main.tmp_outer.clear();
+                        main.output.clear();
+                        if(t.get("binhthuong").isEmpty()){
+                            r.remove(r.get(r.size()-1));
+                            t = main.mainProcess(r);
+                        }else{
+                            break;
+                        }
+                    }
 
 
                     send(new JSONObject(t).toString());
@@ -122,6 +129,10 @@ public class Worker implements Runnable {
             }
             close();
         } catch (IOException e) {
+            if(e instanceof SocketException){
+                System.out.println("Client [" + id + "]: " + socket.getInetAddress().getHostName() + " closed.");
+                Server.workers.remove(this);
+            }
             System.out.println(e);
         }
     }
